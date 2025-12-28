@@ -79,23 +79,23 @@
         tools:text="@sample/posts.json/data/content" />
 
     <ImageButton
-        android:id="@+id/likes"
+        android:id="@+id/like"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/common_spacing"
         android:background="@android:color/transparent"
         android:contentDescription="@string/description_post_likes"
         app:layout_constraintTop_toBottomOf="@id/content"
-        app:srcCompat="@drawable/ic_like" />
+        app:srcCompat="@drawable/ic_like_24" />
 
     <TextView
-        android:id="@+id/likes_count"
+        android:id="@+id/like_count"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/reaction_spacing"
-        app:layout_constraintBottom_toBottomOf="@id/likes"
-        app:layout_constraintStart_toEndOf="@id/likes"
-        app:layout_constraintTop_toTopOf="@id/likes"
+        app:layout_constraintBottom_toBottomOf="@id/like"
+        app:layout_constraintStart_toEndOf="@id/like"
+        app:layout_constraintTop_toTopOf="@id/like"
         tools:text="@sample/posts.json/data/likes" />
 
     <ImageButton
@@ -107,9 +107,9 @@
         android:background="@android:color/transparent"
         android:contentDescription="@string/description_post_share"
         app:layout_constraintHorizontal_chainStyle="packed"
-        app:layout_constraintStart_toEndOf="@id/likes_count"
+        app:layout_constraintStart_toEndOf="@id/like_count"
         app:layout_constraintTop_toBottomOf="@id/content"
-        app:srcCompat="@drawable/ic_share" />
+        app:srcCompat="@drawable/ic_share_24" />
 
     <TextView
         android:id="@+id/share_count"
@@ -131,7 +131,7 @@
         android:contentDescription="@string/description_post_views"
         app:layout_constraintEnd_toStartOf="@id/views_count"
         app:layout_constraintTop_toBottomOf="@id/content"
-        app:srcCompat="@drawable/ic_views" />
+        app:srcCompat="@drawable/ic_views_24" />
 
     <TextView
         android:id="@+id/views_count"
