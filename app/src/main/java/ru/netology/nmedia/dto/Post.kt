@@ -5,10 +5,10 @@ data class Post(
     val author: String,
     val content: String,
     val published: String,
-    var likes: Long,
-    var likedByMe: Boolean,
-    var share: Long,
-    var views: Long
+    val likes: Long,
+    val likedByMe: Boolean,
+    val share: Long,
+    val views: Long
 )
 
 fun counter(count: Long): String {

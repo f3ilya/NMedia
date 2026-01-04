@@ -5,8 +5,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/common_spacing"
-    tools:context=".MainActivity">
+    tools:padding="@dimen/common_spacing"
+    tools:context=".activity.MainActivity">
 
     <ImageView
         android:id="@+id/avatar"
