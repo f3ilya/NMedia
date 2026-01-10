@@ -72,6 +72,8 @@
         android:id="@+id/post_editing"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/common_spacing"
+        android:layout_marginEnd="@dimen/common_spacing"
         android:text="@string/post_editing"
         app:layout_constraintBottom_toTopOf="@id/editable_text"
         app:layout_constraintStart_toEndOf="@id/editing"
@@ -82,6 +84,8 @@
         android:id="@+id/editable_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/common_spacing"
+        android:layout_marginEnd="@dimen/common_spacing"
         android:ellipsize="end"
         android:singleLine="true"
         app:layout_constraintBottom_toTopOf="@id/toolsTop"
@@ -91,11 +95,11 @@
         tools:text="Какой-то текст" />
 
     <ImageButton
-        android:contentDescription="@string/description_post_cancel_editing"
         android:id="@+id/cancel_editing"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
+        android:contentDescription="@string/description_post_cancel_editing"
         app:layout_constraintBottom_toBottomOf="@id/toolsTop"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_cancel_editing_48" />

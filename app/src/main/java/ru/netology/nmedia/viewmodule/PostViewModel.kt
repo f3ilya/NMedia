@@ -30,11 +30,15 @@ class PostViewModel : ViewModel() {
                 repository.save(it.copy(content = text))
             }
         }
-        edited.value = empty
+        clearEdited()
     }
 
     fun edit(post: Post) {
         edited.value = post
+    }
+
+    fun clearEdited() {
+        edited.value = empty
     }
 
     fun likeById(id: Long) = repository.likeById(id)

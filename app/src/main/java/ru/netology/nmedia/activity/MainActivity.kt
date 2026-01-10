@@ -79,6 +79,7 @@ class MainActivity : AppCompatActivity() {
                 editableText.text = ""
                 content.setText("")
                 content.clearFocus()
+                viewModel.clearEdited()
                 AndroidUtils.hideKeyboard(content)
             }
         }
