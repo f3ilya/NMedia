@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Widget.AppTheme.LikeButton" parent="Widget.Material3.Button.TextButton.Icon">
+        <item name="iconTint">@color/like_materialbox_tint</item>
+        <item name="android:minWidth">@dimen/ic_button_min_size</item>
+        <item name="android:minHeight">@dimen/ic_button_min_size</item>
+    </style>
+
+    <style name="Widget.AppTheme.IconButton" parent="Widget.Material3.Button.TextButton.Icon">
+        <item name="iconTint">?attr/colorControlNormal</item>
+        <item name="android:minWidth">@dimen/ic_button_min_size</item>
+        <item name="android:minHeight">@dimen/ic_button_min_size</item>
+    </style>
+
+    <style name="Widget.AppTheme.IconButtonEditing" parent="Widget.Material3.Button.TextButton.Icon">
+        <item name="iconTint">?attr/colorControlNormal</item>
+        <item name="android:minWidth">@dimen/ic_button_min_size</item>
+        <item name="android:minHeight">@dimen/ic_button_min_size</item>
+        <item name="iconPadding">0dp</item>
+        <item name="iconSize">36dp</item>
+    </style>
+
+    <style name="Widget.AppTheme.MenuButton" parent="Widget.Material3.Button.IconButton">
+        <item name="iconTint">?attr/colorControlNormal</item>
+    </style>
+
+</resources>
