@@ -31,7 +31,6 @@
         android:hint="@string/post_text"
         android:importantForAutofill="no"
         android:inputType="textMultiLine"
-        android:maxHeight="200dp"
         android:padding="@dimen/common_spacing"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/save"
