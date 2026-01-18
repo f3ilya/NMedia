@@ -15,4 +15,9 @@
     <string name="error_empty_content">Контент не может быть пустым</string>
     <string name="post_editing">Редактирование поста</string>
     <string name="description_post_editing">Редактирование поста</string>
+    <string name="description_add_post">Добавить пост</string>
+    <string name="chooser_share_post">Поделиться постом</string>
+    <string name="chooser_play_video">Просмотр видео</string>
+    <string name="apps_not_found">Приложение не найдено</string>
+    <string name="description_play_video">Просмотр видео</string>
 </resources>

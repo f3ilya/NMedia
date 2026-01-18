@@ -1,11 +1,15 @@
 package ru.netology.nmedia.activity
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.launch
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -14,7 +18,6 @@ import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.ActivityMainBinding
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.util.AndroidUtils
 import ru.netology.nmedia.viewmodule.PostViewModel
 
 class MainActivity : AppCompatActivity() {
@@ -30,9 +33,14 @@ class MainActivity : AppCompatActivity() {
         }
 
         val viewModel: PostViewModel by viewModels()
+        val newPostLauncher = registerForActivityResult(NewPostResultContract) { result ->
+            result ?: return@registerForActivityResult
+            viewModel.save(result)
+        }
         val adapter = PostsAdapter(object : OnInteractionListener {
             override fun onEdit(post: Post) {
                 viewModel.edit(post)
+                newPostLauncher.launch(post.content)
             }
 
             override fun onLike(post: Post) {
@@ -45,6 +53,23 @@ class MainActivity : AppCompatActivity() {
 
             override fun onShare(post: Post) {
                 viewModel.shareById(post.id)
+                val intent = Intent().apply {
+                    action = Intent.ACTION_SEND
+                    putExtra(Intent.EXTRA_TEXT, post.content)
+                    type = "text/plain"
+                }
+                val shareIntent = Intent.createChooser(
+                    intent, getString(R.string.chooser_share_post)
+                )
+                startActivity(shareIntent)
+            }
+
+            override fun onVideo(post: Post) {
+                val videoIntent = Intent.createChooser(
+                    Intent(Intent.ACTION_VIEW, post.video.toUri()),
+                    getString(R.string.chooser_play_video)
+                )
+                startActivity(videoIntent)
             }
         })
         binding.list.adapter = adapter
@@ -52,57 +77,16 @@ class MainActivity : AppCompatActivity() {
             adapter.submitList(posts)
         }
 
-        adapter.registerAdapterDataObserver(
-            object : RecyclerView.AdapterDataObserver() {
-                override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-                    if (positionStart == 0) {
-                        binding.list.smoothScrollToPosition(0)
-                    }
+        adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                if (positionStart == 0) {
+                    binding.list.smoothScrollToPosition(0)
                 }
             }
-        )
+        })
 
-        viewModel.edited.observe(this) { post ->
-            if (post.id != 0L) {
-                with(binding) {
-                    content.setText(post.content)
-                    AndroidUtils.showKeyboard(content)
-                    group.visibility = View.VISIBLE
-                    editableText.text = post.content
-                }
-            }
-        }
-
-        binding.cancelEditing.setOnClickListener {
-            with(binding) {
-                group.visibility = View.GONE
-                editableText.text = ""
-                content.setText("")
-                content.clearFocus()
-                viewModel.clearEdited()
-                AndroidUtils.hideKeyboard(content)
-            }
-        }
-
-        binding.save.setOnClickListener {
-            with(binding.content) {
-                if (text.isNullOrBlank()) {
-                    Toast.makeText(
-                        this@MainActivity,
-                        R.string.error_empty_content,
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    return@setOnClickListener
-                }
-
-                viewModel.save(text.toString())
-
-                binding.group.visibility = View.GONE
-                binding.editableText.text = ""
-                setText("")
-                clearFocus()
-                AndroidUtils.hideKeyboard(this)
-            }
+        binding.fab.setOnClickListener {
+            newPostLauncher.launch("")
         }
     }
 }

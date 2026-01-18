@@ -1,6 +1,7 @@
 package ru.netology.nmedia.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
@@ -16,6 +17,7 @@ interface OnInteractionListener {
     fun onEdit(post: Post) {}
     fun onRemove(post: Post) {}
     fun onShare(post: Post) {}
+    fun onVideo(post: Post) {}
 }
 
 class PostsAdapter(
@@ -46,11 +48,22 @@ class PostViewHolder(
             share.text = counter(post.share)
             views.text = counter(post.views)
             like.isChecked = post.likedByMe
+            if (post.video.isEmpty()) {
+                group.visibility = View.GONE
+            } else {
+                group.visibility = View.VISIBLE
+            }
             like.setOnClickListener {
                 onInteractionListener.onLike(post)
             }
             share.setOnClickListener {
                 onInteractionListener.onShare(post)
+            }
+            play.setOnClickListener {
+                onInteractionListener.onVideo(post)
+            }
+            video.setOnClickListener {
+                onInteractionListener.onVideo(post)
             }
             menu.setOnClickListener {
                 PopupMenu(it.context, it).apply {
