@@ -1,12 +1,8 @@
 package ru.netology.nmedia.activity
 
-import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.launch
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
@@ -34,7 +30,10 @@ class MainActivity : AppCompatActivity() {
 
         val viewModel: PostViewModel by viewModels()
         val newPostLauncher = registerForActivityResult(NewPostResultContract) { result ->
-            result ?: return@registerForActivityResult
+            if (result == null) {
+                viewModel.clearEdited()
+                return@registerForActivityResult
+            }
             viewModel.save(result)
         }
         val adapter = PostsAdapter(object : OnInteractionListener {
