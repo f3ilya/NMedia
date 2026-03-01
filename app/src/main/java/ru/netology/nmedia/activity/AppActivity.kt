@@ -14,6 +14,8 @@ import ru.netology.nmedia.databinding.ActivityAppBinding
 import ru.netology.nmedia.fragment.NewPostFragment.Companion.textArg
 
 class AppActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityAppBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -25,6 +27,15 @@ class AppActivity : AppCompatActivity() {
             insets
         }
 
+        handleIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleIntent(intent)
+    }
+
+    private fun handleIntent(intent: Intent) {
         intent?.let {
             if (it.action != Intent.ACTION_SEND) {
                 return@let
@@ -42,7 +53,7 @@ class AppActivity : AppCompatActivity() {
 
             intent.removeExtra(Intent.EXTRA_TEXT)
             findNavController(R.id.nav_host_fragment).navigate(
-                R.id.action_feedFragment_to_newPostFragment,
+                R.id.newPostFragment,
                 Bundle().apply { textArg = text }
             )
         }
