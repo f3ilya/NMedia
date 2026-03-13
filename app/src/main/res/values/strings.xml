@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Nmedia</string>
+    <string name="app_name">NMedia</string>
     <string name="nmedia">NMedia!</string>
     <string name="description_post_author_avatar">Post author avatar</string>
     <string name="description_post_menu">Post menu</string>
@@ -19,4 +19,10 @@
     <string name="chooser_play_video">Play video</string>
     <string name="apps_not_found">Apps not found</string>
     <string name="description_play_video">play video</string>
+    <string name="channel_remote_name">Server notifications</string>
+    <string name="channel_remote_description">Notifications from remote server</string>
+    <string name="notification_user_liked">User %1$s liked %2$s\'s post</string>
+    <string name="google_play_unavailable">Google Api Unavailable</string>
+    <string name="error_notification">Notification error. Please update the app.</string>
+    <string name="user_published_a_post">"%1$s published a new post: "</string>
 </resources>

@@ -20,4 +20,10 @@
     <string name="chooser_play_video">Просмотр видео</string>
     <string name="apps_not_found">Приложение не найдено</string>
     <string name="description_play_video">Просмотр видео</string>
+    <string name="channel_remote_name">Уведомления с сервера</string>
+    <string name="channel_remote_description">Уведомления с удаленного сервера</string>
+    <string name="notification_user_liked">%1$s поставил лайк посту %2$s</string>
+    <string name="google_play_unavailable">Google Api Недоступно</string>
+    <string name="error_notification">Ошибка в уведомлении. Пожалуйста, обновите приложение.</string>
+    <string name="user_published_a_post">"%1$s опубликовал новый пост: "</string>
 </resources>
