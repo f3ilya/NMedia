@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -17,7 +16,6 @@ import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.fragment.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.util.LongArg
 import ru.netology.nmedia.viewmodule.PostViewModel
-import kotlin.getValue
 
 class PostFragment : Fragment() {
 
@@ -68,18 +66,18 @@ class PostFragment : Fragment() {
                 startActivity(shareIntent)
             }
 
-            override fun onVideo(post: Post) {
-                val videoIntent = Intent.createChooser(
-                    Intent(Intent.ACTION_VIEW, post.video.toUri()),
-                    getString(R.string.chooser_play_video)
-                )
-                startActivity(videoIntent)
-            }
+//            override fun onVideo(post: Post) {
+//                val videoIntent = Intent.createChooser(
+//                    Intent(Intent.ACTION_VIEW, post.video.toUri()),
+//                    getString(R.string.chooser_play_video)
+//                )
+//                startActivity(videoIntent)
+//            }
         })
         binding.list.adapter = adapter
         val postId = arguments?.idArg ?: -1
-        viewModel.data.observe(viewLifecycleOwner) { posts ->
-            val post = posts.find { it.id == postId } ?: return@observe
+        viewModel.data.observe(viewLifecycleOwner) { state ->
+            val post = state.posts.find { it.id == postId } ?: return@observe
             adapter.submitList(listOf(post))
         }
         return binding.root

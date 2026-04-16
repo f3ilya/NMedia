@@ -25,4 +25,7 @@
     <string name="google_play_unavailable">Google Api Unavailable</string>
     <string name="error_notification">Notification error. Please update the app.</string>
     <string name="user_published_a_post">"%1$s published a new post: "</string>
+    <string name="empty_post">There are no posts.\nIf you create a new post, it will appear here</string>
+    <string name="error_loading">Something went wrong. Try again later</string>
+    <string name="retry_loading">Retry</string>
 </resources>
