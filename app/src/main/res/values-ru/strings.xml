@@ -26,4 +26,7 @@
     <string name="google_play_unavailable">Google Api Недоступно</string>
     <string name="error_notification">Ошибка в уведомлении. Пожалуйста, обновите приложение.</string>
     <string name="user_published_a_post">"%1$s опубликовал новый пост: "</string>
+    <string name="empty_post">Постов нет. Если вы создадите новый пост, то он появится здесь.</string>
+    <string name="error_loading">Что-то пошло не так. Попробуйте еще раз позже.</string>
+    <string name="retry_loading">Повторить попытку.</string>
 </resources>
