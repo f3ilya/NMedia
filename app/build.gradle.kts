@@ -26,15 +26,19 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            manifestPlaceholders["usesCleartextTraffic"] = false
+        }
+        debug {
+            manifestPlaceholders["usesCleartextTraffic"] = true
         }
     }
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
     kotlin {
-        jvmToolchain(11)
+        jvmToolchain(21)
     }
 
     buildFeatures {
@@ -57,6 +61,7 @@ dependencies {
     implementation(platform(libs.firebase))
     implementation(libs.firebase.messaging)
     implementation(libs.play.services)
+    implementation(libs.okhttp)
     coreLibraryDesugaring(libs.desugaring)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

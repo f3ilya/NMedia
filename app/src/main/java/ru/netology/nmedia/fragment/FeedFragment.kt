@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.net.toUri
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import ru.netology.nmedia.viewmodule.PostViewModel
@@ -58,13 +59,13 @@ class FeedFragment : Fragment() {
                 startActivity(shareIntent)
             }
 
-            override fun onVideo(post: Post) {
-                val videoIntent = Intent.createChooser(
-                    Intent(Intent.ACTION_VIEW, post.video.toUri()),
-                    getString(R.string.chooser_play_video)
-                )
-                startActivity(videoIntent)
-            }
+//            override fun onVideo(post: Post) {
+//                val videoIntent = Intent.createChooser(
+//                    Intent(Intent.ACTION_VIEW, post.video.toUri()),
+//                    getString(R.string.chooser_play_video)
+//                )
+//                startActivity(videoIntent)
+//            }
 
             override fun onPost(post: Post) {
                 findNavController().navigate(
@@ -74,8 +75,15 @@ class FeedFragment : Fragment() {
             }
         })
         binding.list.adapter = adapter
-        viewModel.data.observe(viewLifecycleOwner) { posts ->
-            adapter.submitList(posts)
+        viewModel.data.observe(viewLifecycleOwner) { state ->
+            adapter.submitList(state.posts)
+            binding.progress.isVisible = state.loading
+            binding.errorGroup.isVisible = state.error
+            binding.emptyText.isVisible = state.empty
+        }
+
+        binding.retryButton.setOnClickListener {
+            viewModel.loadPosts()
         }
 
         binding.fab.setOnClickListener {

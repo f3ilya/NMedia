@@ -44,16 +44,16 @@ class PostViewHolder(
             avatar.setImageResource(R.drawable.ic_launcher_netology_48)
             author.text = post.author
             content.text = post.content
-            published.text = post.published
+            published.text = post.published.toString()
             like.text = counter(post.likes)
             share.text = counter(post.share)
             views.text = counter(post.views)
             like.isChecked = post.likedByMe
-            if (post.video.isEmpty()) {
-                group.visibility = View.GONE
-            } else {
-                group.visibility = View.VISIBLE
-            }
+//            if (post.video.isEmpty()) {
+//                group.visibility = View.GONE
+//            } else {
+//                group.visibility = View.VISIBLE
+//            }
             like.setOnClickListener {
                 onInteractionListener.onLike(post)
             }
