@@ -36,21 +36,9 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         loadPosts()
     }
 
-//    fun loadPosts() {
-//        thread {
-//            _data.postValue(FeedModel(loading = true))
-//            try {
-//                val posts = repository.getAll()
-//                FeedModel(posts = posts, empty = posts.isEmpty())
-//            } catch (_: IOException) {
-//                FeedModel(error = true)
-//            }.also(_data::postValue)
-//        }
-//    }
-
     fun loadPosts() {
         _data.value = FeedModel(loading = true)
-        repository.getAllAsync(object : PostRepository.GetCallback {
+        repository.getAllAsync(object : PostRepository.PostCallback {
             override fun onSuccess(posts: List<Post>) {
                 _data.postValue(FeedModel(posts = posts, empty = posts.isEmpty()))
             }
@@ -61,19 +49,9 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         })
     }
 
-//    fun save() {
-//        edited.value?.let {
-//            thread {
-//                repository.save(it)
-//                _postCreated.postValue(Unit)
-//            }
-//        }
-//        clearEdited()
-//    }
-
     fun save() {
         edited.value?.let {
-            repository.saveAsync(it, object : PostRepository.GetCallback {
+            repository.saveAsync(it, object : PostRepository.PostCallback {
                 override fun onSuccess(posts: List<Post>) {
                     _postCreated.postValue(Unit)
                 }
@@ -100,59 +78,23 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         edited.value = empty
     }
 
-//    fun likeById(id: Long) {
-//        thread {
-//            val post: Post
-//            if (_data.value?.posts?.find { it.id == id }?.likedByMe == false) {
-//                post = repository.likeById(id)
-//            } else {
-//                post = repository.dislikeById(id)
-//            }
-//            val posts = _data.value?.posts?.map {
-//                if (it.id != id) it else it.copy(likes = post.likes, likedByMe = post.likedByMe)
-//            }
-//            _data.postValue(_data.value?.copy(posts = posts.orEmpty()))
-//        }
-//    }
     fun likeById(id: Long) {
-        if (_data.value?.posts?.find { it.id == id }?.likedByMe == false) {
-            repository.likeByIdAsync(id, object : PostRepository.GetCallback {
-                override fun onSuccess(posts: List<Post>) {
-                    val post = _data.value?.posts?.map {
-                        if (it.id != id) it else it.copy(
-                            likes = posts[0].likes,
-                            likedByMe = posts[0].likedByMe
-                        )
-                    }
-                    _data.postValue(_data.value?.copy(posts = post.orEmpty()))
+        val currentState = _data.value ?: return
+        val currentStatePosts = currentState.posts
+        val post = currentStatePosts.find { it.id == id } ?: return
+        val likedByMe = post.likedByMe
+        repository.likeByIdAsync(id, likedByMe, object : PostRepository.PostCallback {
+            override fun onSuccess(posts: List<Post>) {
+                val post = currentStatePosts.map { post ->
+                    if (post.id != id) post else posts.find { it.id == id } ?: return
                 }
+                _data.postValue(currentState.copy(posts = post))
+            }
 
-                override fun onError(e: Exception) {}
-            })
-        } else {
-            repository.dislikeByIdAsync(id, object : PostRepository.GetCallback {
-                override fun onSuccess(posts: List<Post>) {
-                    val post = _data.value?.posts?.map {
-                        if (it.id != id) it else it.copy(
-                            likes = posts[0].likes,
-                            likedByMe = posts[0].likedByMe
-                        )
-                    }
-                    _data.postValue(_data.value?.copy(posts = post.orEmpty()))
-                }
-
-                override fun onError(e: Exception) {}
-            })
-        }
+            override fun onError(e: Exception) {}
+        })
     }
 
-
-    //    fun shareById(id: Long) = thread {
-//        val posts = _data.value?.posts?.map {
-//            if (it.id != id) it else it.copy(share = it.share + 1)
-//        }
-//        _data.postValue(_data.value?.copy(posts = posts.orEmpty()))
-//    }
     fun shareById(id: Long) {
         val posts = _data.value?.posts?.map {
             if (it.id != id) it else it.copy(share = it.share + 1)
@@ -160,35 +102,14 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         _data.postValue(_data.value?.copy(posts = posts.orEmpty()))
     }
 
-    //    fun removeById(id: Long) {
-//        thread {
-//            val old = _data.value?.posts.orEmpty()
-//            _data.postValue(
-//                _data.value?.copy(
-//                    posts = _data.value?.posts.orEmpty()
-//                        .filter { it.id != id }
-//                )
-//            )
-//            try {
-//                repository.removeById(id)
-//            } catch (_: IOException) {
-//                _data.postValue(_data.value?.copy(posts = old))
-//            }
-//        }
-//    }
     fun removeById(id: Long) {
-        val old = _data.value?.posts.orEmpty()
-        _data.postValue(
-            _data.value?.copy(
-                posts = _data.value?.posts.orEmpty()
-                    .filter { it.id != id }
-            )
-        )
-        repository.removeByIdAsync(id, object : PostRepository.GetCallback {
+        val old = _data.value ?: return
+        _data.postValue(old.copy(posts = old.posts.filter { it.id != id }))
+        repository.removeByIdAsync(id, object : PostRepository.PostCallback {
             override fun onSuccess(posts: List<Post>) {}
 
             override fun onError(e: Exception) {
-                _data.postValue(_data.value?.copy(posts = old))
+                _data.postValue(old)
             }
         })
     }
