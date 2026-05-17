@@ -29,4 +29,5 @@
     <string name="empty_post">Постов нет. Если вы создадите новый пост, то он появится здесь.</string>
     <string name="error_loading">Что-то пошло не так. Попробуйте еще раз позже.</string>
     <string name="retry_loading">Повторить попытку.</string>
+    <string name="attachment_images">Вложение поста: изображение.</string>
 </resources>

@@ -10,7 +10,11 @@ import androidx.recyclerview.widget.RecyclerView
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.extensions.load
 import ru.netology.nmedia.util.counter
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 interface OnInteractionListener {
     fun onLike(post: Post) {}
@@ -41,14 +45,23 @@ class PostViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
     fun bind(post: Post) {
         binding.apply {
-            avatar.setImageResource(R.drawable.ic_launcher_netology_48)
+            binding.avatar.load("http://10.0.2.2:9999/avatars/${post.authorAvatar}", true)
             author.text = post.author
             content.text = post.content
-            published.text = post.published.toString()
+            published.text = Instant.ofEpochSecond(post.published)
+                .atZone(ZoneId.systemDefault())
+                .format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"))
             like.text = counter(post.likes)
             share.text = counter(post.share)
             views.text = counter(post.views)
             like.isChecked = post.likedByMe
+            if (post.attachment != null) {
+                binding.attachment.load("http://10.0.2.2:9999/images/${post.attachment.url}")
+                attachment.visibility = View.VISIBLE
+                attachment.contentDescription = post.attachment.description
+            } else {
+                attachment.visibility = View.GONE
+            }
 //            if (post.video.isEmpty()) {
 //                group.visibility = View.GONE
 //            } else {
