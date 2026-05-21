@@ -28,4 +28,5 @@
     <string name="empty_post">There are no posts. If you create a new post, it will appear here</string>
     <string name="error_loading">Something went wrong. Try again later</string>
     <string name="retry_loading">Retry</string>
+    <string name="attachment_images">Post attachment: image.</string>
 </resources>
