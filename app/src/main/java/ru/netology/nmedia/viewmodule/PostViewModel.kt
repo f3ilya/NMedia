@@ -1,9 +1,11 @@
 package ru.netology.nmedia.viewmodule
 
 import android.app.Application
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import ru.netology.nmedia.R
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.repository.PostRepository
@@ -39,25 +41,33 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     fun loadPosts() {
         _data.value = FeedModel(loading = true)
-        repository.getAllAsync(object : PostRepository.PostCallback {
-            override fun onSuccess(posts: List<Post>) {
-                _data.postValue(FeedModel(posts = posts, empty = posts.isEmpty()))
+        repository.getAllAsync(object : PostRepository.PostCallback<List<Post>> {
+            override fun onSuccess(result: List<Post>) {
+                _data.value = (FeedModel(posts = result, empty = result.isEmpty()))
             }
 
-            override fun onError(e: Exception) {
-                _data.postValue(FeedModel(error = true))
+            override fun onError(e: Throwable) {
+                _data.value = (FeedModel(error = true))
             }
         })
     }
 
     fun save() {
         edited.value?.let {
-            repository.saveAsync(it, object : PostRepository.PostCallback {
-                override fun onSuccess(posts: List<Post>) {
+            repository.saveAsync(it, object : PostRepository.PostCallback<Post> {
+                override fun onSuccess(result: Post) {
                     _postCreated.postValue(Unit)
                 }
 
-                override fun onError(e: Exception) {}
+                override fun onError(e: Throwable) {
+                    Toast.makeText(
+                        getApplication(),
+                        getApplication<Application>().getString(
+                            R.string.error_loading
+                        ),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             })
         }
         clearEdited()
@@ -84,15 +94,23 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         val currentStatePosts = currentState.posts
         val post = currentStatePosts.find { it.id == id } ?: return
         val likedByMe = post.likedByMe
-        repository.likeByIdAsync(id, likedByMe, object : PostRepository.PostCallback {
-            override fun onSuccess(posts: List<Post>) {
-                val post = currentStatePosts.map { post ->
-                    if (post.id != id) post else posts.find { it.id == id } ?: return
+        repository.likeByIdAsync(id, likedByMe, object : PostRepository.PostCallback<Post> {
+            override fun onSuccess(result: Post) {
+                val posts = currentStatePosts.map {
+                    if (it.id != id) it else result
                 }
-                _data.postValue(currentState.copy(posts = post))
+                _data.postValue(currentState.copy(posts = posts))
             }
 
-            override fun onError(e: Exception) {}
+            override fun onError(e: Throwable) {
+                Toast.makeText(
+                    getApplication(),
+                    getApplication<Application>().getString(
+                        R.string.error_loading
+                    ),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         })
     }
 
@@ -106,11 +124,18 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     fun removeById(id: Long) {
         val old = _data.value ?: return
         _data.postValue(old.copy(posts = old.posts.filter { it.id != id }))
-        repository.removeByIdAsync(id, object : PostRepository.PostCallback {
-            override fun onSuccess(posts: List<Post>) {}
+        repository.removeByIdAsync(id, object : PostRepository.PostCallback<Unit> {
+            override fun onSuccess(result: Unit) {}
 
-            override fun onError(e: Exception) {
+            override fun onError(e: Throwable) {
                 _data.postValue(old)
+                Toast.makeText(
+                    getApplication(),
+                    getApplication<Application>().getString(
+                        R.string.error_loading
+                    ),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         })
     }
