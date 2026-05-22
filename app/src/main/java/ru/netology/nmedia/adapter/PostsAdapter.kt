@@ -70,6 +70,7 @@ class PostViewHolder(
 //            }
             like.setOnClickListener {
                 onInteractionListener.onLike(post)
+                like.isChecked = post.likedByMe
             }
             share.setOnClickListener {
                 onInteractionListener.onShare(post)
