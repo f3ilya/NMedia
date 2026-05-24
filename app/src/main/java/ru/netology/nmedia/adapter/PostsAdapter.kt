@@ -7,6 +7,7 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
@@ -45,7 +46,7 @@ class PostViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
     fun bind(post: Post) {
         binding.apply {
-            binding.avatar.load("http://10.0.2.2:9999/avatars/${post.authorAvatar}", true)
+            binding.avatar.load("${BuildConfig.BASE_URL}/avatars/${post.authorAvatar}", true)
             author.text = post.author
             content.text = post.content
             published.text = Instant.ofEpochSecond(post.published)
@@ -56,7 +57,7 @@ class PostViewHolder(
             views.text = counter(post.views)
             like.isChecked = post.likedByMe
             if (post.attachment != null) {
-                binding.attachment.load("http://10.0.2.2:9999/images/${post.attachment.url}")
+                binding.attachment.load("${BuildConfig.BASE_URL}/images/${post.attachment.url}")
                 attachment.visibility = View.VISIBLE
                 attachment.contentDescription = post.attachment.description
             } else {
@@ -69,6 +70,7 @@ class PostViewHolder(
 //            }
             like.setOnClickListener {
                 onInteractionListener.onLike(post)
+                like.isChecked = post.likedByMe
             }
             share.setOnClickListener {
                 onInteractionListener.onShare(post)
