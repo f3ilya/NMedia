@@ -1,11 +1,11 @@
 package ru.netology.nmedia.fragment
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -67,13 +67,13 @@ class PostFragment : Fragment() {
                 startActivity(shareIntent)
             }
 
-//            override fun onVideo(post: Post) {
-//                val videoIntent = Intent.createChooser(
-//                    Intent(Intent.ACTION_VIEW, post.video.toUri()),
-//                    getString(R.string.chooser_play_video)
-//                )
-//                startActivity(videoIntent)
-//            }
+            override fun onVideo(post: Post) {
+                val videoIntent = Intent.createChooser(
+                    Intent(Intent.ACTION_VIEW, Uri.parse(post.video)),
+                    getString(R.string.chooser_play_video)
+                )
+                startActivity(videoIntent)
+            }
         })
         binding.list.adapter = adapter
         val postId = arguments?.idArg ?: -1

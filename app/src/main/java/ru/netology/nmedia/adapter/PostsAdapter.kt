@@ -13,6 +13,7 @@ import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.extensions.load
 import ru.netology.nmedia.util.counter
+import ru.netology.nmedia.enumeration.AttachmentType.*
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -56,18 +57,25 @@ class PostViewHolder(
             share.text = counter(post.share)
             views.text = counter(post.views)
             like.isChecked = post.likedByMe
-            if (post.attachment != null) {
-                binding.attachment.load("${BuildConfig.BASE_URL}/images/${post.attachment.url}")
-                attachment.visibility = View.VISIBLE
-                attachment.contentDescription = post.attachment.description
-            } else {
-                attachment.visibility = View.GONE
+            when (post.attachment?.type) {
+                VIDEO -> {
+                    group.visibility = View.GONE
+                    video.setOnClickListener {
+                        onInteractionListener.onVideo(post)
+                    }
+                }
+
+                IMAGE -> {
+                    binding.attachment.load("${BuildConfig.BASE_URL}/images/${post.attachment.url}")
+                    attachment.visibility = View.VISIBLE
+                    attachment.contentDescription = post.attachment.description
+                }
+
+                else -> {
+                    group.visibility = View.GONE
+                    attachment.visibility = View.GONE
+                }
             }
-//            if (post.video.isEmpty()) {
-//                group.visibility = View.GONE
-//            } else {
-//                group.visibility = View.VISIBLE
-//            }
             like.setOnClickListener {
                 onInteractionListener.onLike(post)
                 like.isChecked = post.likedByMe
@@ -76,9 +84,6 @@ class PostViewHolder(
                 onInteractionListener.onShare(post)
             }
             play.setOnClickListener {
-                onInteractionListener.onVideo(post)
-            }
-            video.setOnClickListener {
                 onInteractionListener.onVideo(post)
             }
             content.setOnClickListener {
