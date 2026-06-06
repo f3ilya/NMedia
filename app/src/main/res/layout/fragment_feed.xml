@@ -46,6 +46,23 @@
                 tools:listitem="@layout/card_post" />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/newPosts"
+            style="@style/Widget.AppTheme.NewPostsButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/common_spacing"
+            android:clickable="true"
+            android:contentDescription="@string/recent_posts"
+            android:focusable="true"
+            android:visibility="visible"
+            app:icon="@drawable/ic_recent_posts_24dp"
+            app:iconTint="@android:color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="@sample/posts.json/data/views" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

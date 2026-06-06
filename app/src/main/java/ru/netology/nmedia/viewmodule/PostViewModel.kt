@@ -4,8 +4,11 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.map
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
@@ -24,17 +27,25 @@ private val empty = Post(
     likes = 0,
     likedByMe = false,
     share = 0,
-    views = 0
+    views = 0,
+    isHiddenPost = false
 )
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
     // упрощённый вариант
     private val repository: PostRepository =
         PostRepositoryRoomImpl(AppDb.getInstance(application).postDao)
-    val data: LiveData<FeedModel> = repository.data.map(::FeedModel)
+    val data: LiveData<FeedModel> = repository.data
+        .map(::FeedModel)
+        .asLiveData(Dispatchers.Default)
     private val _dataState = MutableLiveData<FeedModelState>()
     val dataState: LiveData<FeedModelState>
         get() = _dataState
+    val newerCount: LiveData<Int> = data.switchMap {
+        repository.getNewerCount(it.posts.firstOrNull()?.id ?: 0L)
+            .catch { e -> e.printStackTrace() }
+            .asLiveData(Dispatchers.Default)
+    }
     val edited = MutableLiveData(empty)
     private val _postCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit>
@@ -111,6 +122,17 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             runCatching {
                 repository.removeById(id)
+                _dataState.value = FeedModelState()
+            }.onFailure {
+                _dataState.value = FeedModelState(error = true)
+            }
+        }
+    }
+
+    fun readAll() {
+        viewModelScope.launch {
+            runCatching {
+                repository.readAll()
                 _dataState.value = FeedModelState()
             }.onFailure {
                 _dataState.value = FeedModelState(error = true)
