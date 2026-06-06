@@ -55,7 +55,7 @@
             android:clickable="true"
             android:contentDescription="@string/recent_posts"
             android:focusable="true"
-            android:visibility="visible"
+            android:visibility="gone"
             app:icon="@drawable/ic_recent_posts_24dp"
             app:iconTint="@android:color/white"
             app:layout_constraintEnd_toEndOf="parent"
