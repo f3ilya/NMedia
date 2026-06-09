@@ -30,4 +30,5 @@
     <string name="error_loading">Что-то пошло не так. Попробуйте еще раз позже.</string>
     <string name="retry_loading">Повторить попытку.</string>
     <string name="attachment_images">Вложение поста: изображение.</string>
+    <string name="recent_posts">Свежие посты</string>
 </resources>

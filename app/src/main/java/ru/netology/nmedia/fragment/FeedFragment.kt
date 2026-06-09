@@ -11,6 +11,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostsAdapter
@@ -19,6 +22,7 @@ import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.fragment.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.fragment.PostFragment.Companion.idArg
 import ru.netology.nmedia.viewmodule.PostViewModel
+import kotlin.coroutines.EmptyCoroutineContext
 
 class FeedFragment : Fragment() {
 
@@ -89,6 +93,22 @@ class FeedFragment : Fragment() {
         viewModel.data.observe(viewLifecycleOwner) { state ->
             adapter.submitList(state.posts)
             binding.emptyText.isVisible = state.empty
+        }
+
+        viewModel.newerCount.observe(viewLifecycleOwner) { state ->
+            binding.newPosts.text = getString(R.string.recent_posts)
+            binding.newPosts.isVisible = state > 0
+        }
+
+        binding.newPosts.setOnClickListener {
+            binding.newPosts.isVisible = false
+            viewModel.readAll()
+            CoroutineScope(EmptyCoroutineContext).launch {
+                delay(100)
+                binding.list.post {
+                    binding.list.smoothScrollToPosition(0)
+                }
+            }
         }
 
         binding.swipeRefresh.setOnRefreshListener {
