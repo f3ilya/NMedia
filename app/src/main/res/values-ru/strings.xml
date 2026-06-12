@@ -31,4 +31,9 @@
     <string name="retry_loading">Повторить попытку.</string>
     <string name="attachment_images">Вложение поста: изображение.</string>
     <string name="recent_posts">Свежие посты</string>
+    <string name="menu_save">Сохранить</string>
+    <string name="description_photo">Фото</string>
+    <string name="remove">Удалить</string>
+    <string name="description_select_photo">Выбрать фото</string>
+    <string name="description_take_photo">Сделать фото</string>
 </resources>
