@@ -21,6 +21,7 @@ firebase = "34.10.0"
 playServices = "18.10.0"
 desugaring = "2.1.5"
 swiperefreshlayout = "1.2.0"
+imagepicker = "2.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -43,6 +44,7 @@ firebase = { group = "com.google.firebase", name = "firebase-bom", version.ref =
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
 play-services = { group = "com.google.android.gms", name = "play-services-base", version.ref = "playServices" }
 desugaring = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugaring" }
+imagepicker = { module = "com.github.dhaval2404:imagepicker", version.ref = "imagepicker" }
 
 
 [plugins]

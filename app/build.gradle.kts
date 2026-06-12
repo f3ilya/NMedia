@@ -71,4 +71,5 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.logging.interceptor)
     implementation(libs.androidx.swiperefreshlayout)
+    implementation(libs.imagepicker)
 }
