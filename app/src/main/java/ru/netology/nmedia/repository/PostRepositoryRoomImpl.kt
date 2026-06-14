@@ -3,13 +3,19 @@ package ru.netology.nmedia.repository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import okio.IOException
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.entity.toDto
 import ru.netology.nmedia.api.PostsApi
+import ru.netology.nmedia.dto.Attachment
+import ru.netology.nmedia.dto.Media
+import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.entity.toEntity
+import ru.netology.nmedia.enumeration.AttachmentType
 import ru.netology.nmedia.error.ApiError
 import ru.netology.nmedia.error.AppError
 import ru.netology.nmedia.error.NetworkError
@@ -112,6 +118,20 @@ class PostRepositoryRoomImpl(private val dao: PostDao) : PostRepository {
         }
     }
 
+    override suspend fun saveWithAttachment(post: Post, upload: MediaUpload) {
+        try {
+            val media = upload(upload)
+            val postWithAttachment = post.copy(attachment = Attachment(media.id, type = AttachmentType.IMAGE))
+            save(postWithAttachment)
+        } catch (e: AppError) {
+            throw e
+        } catch (_: IOException) {
+            throw NetworkError
+        } catch (_: Exception) {
+            throw UnknownError
+        }
+    }
+
     /** Сначала запрос на сервер, затем удаление: */
 
     /*
@@ -154,5 +174,22 @@ class PostRepositoryRoomImpl(private val dao: PostDao) : PostRepository {
 
     override suspend fun readAll() {
         dao.readAll()
+    }
+
+    override suspend fun upload(upload: MediaUpload): Media {
+        try {
+            val media = MultipartBody.Part.createFormData(
+                "file", upload.file.name, upload.file.asRequestBody()
+            )
+            val response = PostsApi.retrofitService.upload(media)
+            if (!response.isSuccessful) {
+                throw ApiError(response.code(), response.message())
+            }
+            return response.body() ?: throw ApiError(response.code(), response.message())
+        } catch (_: IOException) {
+            throw NetworkError
+        } catch (_: Exception) {
+            throw UnknownError
+        }
     }
 }

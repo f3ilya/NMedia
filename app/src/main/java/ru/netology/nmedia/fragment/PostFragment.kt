@@ -74,6 +74,13 @@ class PostFragment : Fragment() {
                 )
                 startActivity(videoIntent)
             }
+
+            override fun onPhoto(post: Post) {
+                findNavController().navigate(
+                    R.id.action_postFragment_to_photoFragment,
+                    Bundle().apply { textArg = post.attachment?.url }
+                )
+            }
         })
         binding.list.adapter = adapter
         val postId = arguments?.idArg ?: -1

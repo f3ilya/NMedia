@@ -25,6 +25,7 @@ interface OnInteractionListener {
     fun onShare(post: Post) {}
     fun onVideo(post: Post) {}
     fun onPost(post: Post) {}
+    fun onPhoto(post: Post) {}
 }
 
 class PostsAdapter(
@@ -66,9 +67,12 @@ class PostViewHolder(
                 }
 
                 IMAGE -> {
-                    binding.attachment.load("${BuildConfig.BASE_URL}/images/${post.attachment.url}")
+                    binding.attachment.load("${BuildConfig.BASE_URL}/media/${post.attachment.url}")
                     attachment.visibility = View.VISIBLE
                     attachment.contentDescription = post.attachment.description
+                    attachment.setOnClickListener {
+                        onInteractionListener.onPhoto(post)
+                    }
                 }
 
                 else -> {

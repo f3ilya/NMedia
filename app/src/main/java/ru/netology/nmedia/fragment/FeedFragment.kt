@@ -78,6 +78,13 @@ class FeedFragment : Fragment() {
                     Bundle().apply { idArg = post.id }
                 )
             }
+
+            override fun onPhoto(post: Post) {
+                findNavController().navigate(
+                    R.id.action_feedFragment_to_photoFragment,
+                    Bundle().apply { textArg = post.attachment?.url }
+                )
+            }
         })
         binding.list.adapter = adapter
         viewModel.dataState.observe(viewLifecycleOwner) { state ->
