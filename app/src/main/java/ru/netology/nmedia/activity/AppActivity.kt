@@ -5,9 +5,14 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.findNavController
@@ -17,10 +22,14 @@ import com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_INDEFI
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.messaging.FirebaseMessaging
 import ru.netology.nmedia.R
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.ActivityAppBinding
 import ru.netology.nmedia.fragment.NewPostFragment.Companion.textArg
+import ru.netology.nmedia.util.showConfirmationDialog
+import ru.netology.nmedia.viewmodule.AuthViewModel
 
 class AppActivity : AppCompatActivity() {
+    private val viewModel: AuthViewModel by viewModels()
     private lateinit var binding: ActivityAppBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,6 +45,46 @@ class AppActivity : AppCompatActivity() {
         requestNotificationsPermission()
         handleIntent(intent)
         checkGoogleApiAvailability()
+        viewModel.data.observe(this) {
+            invalidateOptionsMenu()
+        }
+        addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_main, menu)
+                menu.let {
+                    it.setGroupVisible(R.id.unauthenticated, !viewModel.authenticated)
+                    it.setGroupVisible(R.id.authenticated, viewModel.authenticated)
+                }
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
+                when (menuItem.itemId) {
+                    R.id.signin -> {
+                        findNavController(R.id.nav_host_fragment).navigate(
+                            R.id.authenticationFragment,
+                        )
+                        true
+                    }
+                    R.id.signup -> {
+                        findNavController(R.id.nav_host_fragment).navigate(
+                            R.id.registrationFragment,
+                        )
+                        true
+                    }
+                    R.id.signout -> {
+                        showConfirmationDialog(
+                            title = getString(R.string.exiting_the_app),
+                            message = getString(R.string.are_you_sure_you_want_to_get_out),
+                            onConfirm = fun() {
+                                AppAuth.getInstance().removeAuth()
+                            },
+                            positive = getString(R.string.sign_out)
+                        )
+                        true
+                    }
+                    else -> false
+                }
+        })
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -44,7 +93,7 @@ class AppActivity : AppCompatActivity() {
     }
 
     private fun handleIntent(intent: Intent) {
-        intent?.let {
+        intent.let {
             if (it.action != Intent.ACTION_SEND) {
                 return@let
             }
@@ -86,7 +135,11 @@ class AppActivity : AppCompatActivity() {
                 getErrorDialog(this@AppActivity, code, 9000)?.show()
                 return
             }
-            Toast.makeText(this@AppActivity, R.string.google_play_unavailable, Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                this@AppActivity,
+                R.string.google_play_unavailable,
+                Toast.LENGTH_LONG
+            ).show()
         }
 
         FirebaseMessaging.getInstance().token.addOnSuccessListener {
