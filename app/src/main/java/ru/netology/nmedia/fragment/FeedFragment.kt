@@ -17,10 +17,12 @@ import kotlinx.coroutines.launch
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostsAdapter
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.fragment.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.fragment.PostFragment.Companion.idArg
+import ru.netology.nmedia.util.showConfirmationDialog
 import ru.netology.nmedia.viewmodule.PostViewModel
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -35,6 +37,17 @@ class FeedFragment : Fragment() {
             inflater, container, false
         )
 
+        fun authorizationIsRequired() {
+            requireContext().showConfirmationDialog(
+                title = getString(R.string.authorization_is_required),
+                message = getString(R.string.authorization_is_required_message),
+                onConfirm = fun() {
+                    findNavController().navigate(R.id.action_feedFragment_to_authenticationFragment)
+                },
+                positive = getString(R.string.log_in)
+            )
+        }
+
         val adapter = PostsAdapter(object : OnInteractionListener {
             override fun onEdit(post: Post) {
                 viewModel.edit(post)
@@ -44,7 +57,11 @@ class FeedFragment : Fragment() {
             }
 
             override fun onLike(post: Post) {
-                viewModel.likeById(post.id)
+                if (AppAuth.getInstance().authStateFlow.value.token.isNullOrEmpty()) {
+                    authorizationIsRequired()
+                } else {
+                    viewModel.likeById(post.id)
+                }
             }
 
             override fun onRemove(post: Post) {
@@ -123,7 +140,11 @@ class FeedFragment : Fragment() {
         }
 
         binding.fab.setOnClickListener {
-            findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+            if (AppAuth.getInstance().authStateFlow.value.token.isNullOrEmpty()) {
+                authorizationIsRequired()
+            } else {
+                findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+            }
         }
 
         return binding.root

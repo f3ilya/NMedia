@@ -46,25 +46,6 @@ class NewPostFragment : Fragment() {
         )
         fragmentBinding = binding
 
-//        val toolbar = view?.findViewById<Toolbar>(R.id.toolbar)
-////        (activity as? AppCompatActivity)?.setSupportActionBar(toolbar)
-//
-//        toolbar?.inflateMenu(R.menu.menu_new_post)
-//        toolbar?.setOnMenuItemClickListener { item ->
-//            when (item.itemId) {
-//                R.id.save -> {
-//                    fragmentBinding?.let {
-//                        viewModel.changeContent(it.edit.text.toString())
-//                        viewModel.save()
-//                        AndroidUtils.hideKeyboard(requireView())
-//                    }
-//                    true
-//                }
-//
-//                else -> false
-//            }
-//        }
-
         arguments?.textArg?.let(binding.edit::setText)
 
         binding.edit.requestFocus()
@@ -112,18 +93,6 @@ class NewPostFragment : Fragment() {
             viewModel.changePhoto(null, null)
         }
 
-
-
-//        binding.ok.setOnClickListener {
-//            viewModel.changeContent(binding.edit.text.toString())
-//            viewModel.save()
-//            AndroidUtils.hideKeyboard(requireView())
-//        }
-//        binding.cancel.setOnClickListener {
-//            viewModel.clearEdited()
-//            AndroidUtils.hideKeyboard(requireView())
-//            findNavController().navigateUp()
-//        }
         viewModel.postCreated.observe(viewLifecycleOwner) {
             viewModel.loadPosts()
             findNavController().navigateUp()
