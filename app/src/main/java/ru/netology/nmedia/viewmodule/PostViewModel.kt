@@ -20,7 +20,7 @@ import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.model.FeedModelState
 import ru.netology.nmedia.model.PhotoModel
 import ru.netology.nmedia.repository.PostRepository
-import ru.netology.nmedia.repository.PostRepositoryRoomImpl
+import ru.netology.nmedia.repository.PostRepositoryImpl
 import ru.netology.nmedia.util.SingleLiveEvent
 import java.io.File
 
@@ -42,7 +42,7 @@ private val noPhoto = PhotoModel()
 class PostViewModel(application: Application) : AndroidViewModel(application) {
     // упрощённый вариант
     private val repository: PostRepository =
-        PostRepositoryRoomImpl(AppDb.getInstance(application).postDao)
+        PostRepositoryImpl(AppDb.getInstance(application).postDao)
     @OptIn(ExperimentalCoroutinesApi::class)
     val data: LiveData<FeedModel> = AppAuth.getInstance()
         .authStateFlow

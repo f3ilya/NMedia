@@ -2,7 +2,15 @@ package ru.netology.nmedia.auth
 
 import android.content.Context
 import androidx.core.content.edit
+import com.google.firebase.Firebase
+import com.google.firebase.messaging.messaging
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import ru.netology.nmedia.api.Api
+import ru.netology.nmedia.dto.PushToken
 
 class AppAuth private constructor(context: Context) {
     private val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
@@ -22,6 +30,7 @@ class AppAuth private constructor(context: Context) {
         } else {
             _authStateFlow = MutableStateFlow(AuthState(id, token))
         }
+        sendPushToken()
     }
 
     val authStateFlow: StateFlow<AuthState> = _authStateFlow.asStateFlow()
@@ -33,6 +42,7 @@ class AppAuth private constructor(context: Context) {
             putLong(idKey, id)
             putString(tokenKey, token)
         }
+        sendPushToken()
     }
 
     @Synchronized
@@ -40,6 +50,18 @@ class AppAuth private constructor(context: Context) {
         _authStateFlow.value = AuthState()
         prefs.edit(true) {
             clear()
+        }
+        sendPushToken()
+    }
+
+    fun sendPushToken(token: String? = null) {
+        CoroutineScope(Dispatchers.Default).launch {
+            runCatching {
+                val pushToken = PushToken(token ?: Firebase.messaging.token.await())
+                Api.retrofitService.sendPushToken(pushToken)
+            }.onFailure { error ->
+                error.printStackTrace()
+            }
         }
     }
 
