@@ -15,11 +15,13 @@ import androidx.navigation.fragment.findNavController
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.github.dhaval2404.imagepicker.constant.ImageProvider
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentRegistrationBinding
 import ru.netology.nmedia.util.showConfirmationDialog
 import ru.netology.nmedia.viewmodule.RegViewModel
 
+@AndroidEntryPoint
 class RegistrationFragment : Fragment() {
     private val viewModel: RegViewModel by viewModels()
 
