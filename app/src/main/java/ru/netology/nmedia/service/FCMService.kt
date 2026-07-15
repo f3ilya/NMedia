@@ -16,6 +16,7 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
 import ru.netology.nmedia.R
+import ru.netology.nmedia.auth.AppAuth
 import kotlin.random.Random
 
 class FCMService : FirebaseMessagingService() {
@@ -39,6 +40,13 @@ class FCMService : FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
+        val push = gson.fromJson(message.data[content], Push::class.java)
+        val appAuthId = AppAuth.getInstance().authStateFlow.value.id
+        if (push.recipientId == appAuthId || push.recipientId == null) {
+            handlePush(push)
+        } else {
+            AppAuth.getInstance().sendPushToken()
+        }
         message.data[action]?.let {
             try {
                 when (Action.valueOf(it)) {
@@ -72,7 +80,7 @@ class FCMService : FirebaseMessagingService() {
     }
 
     override fun onNewToken(token: String) {
-        println(token)
+        AppAuth.getInstance().sendPushToken(token)
     }
 
     private fun handleLike(content: Like) {
@@ -107,6 +115,16 @@ class FCMService : FirebaseMessagingService() {
         notify(notification)
     }
 
+    private fun handlePush(content: Push) {
+        val notification = NotificationCompat.Builder(this, channelId)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(content.content)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .build()
+
+        notify(notification)
+    }
+
     private fun notify(notification: Notification) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
             checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
@@ -120,6 +138,11 @@ enum class Action {
     LIKE,
     POST
 }
+
+data class Push(
+    val recipientId: Long?,
+    val content: String
+)
 
 data class Like(
     val userId: Long,

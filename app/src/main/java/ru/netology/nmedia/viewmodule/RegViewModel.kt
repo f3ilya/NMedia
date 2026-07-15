@@ -13,7 +13,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import ru.netology.nmedia.R
-import ru.netology.nmedia.api.PostsApi
+import ru.netology.nmedia.api.Api
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.auth.AuthState
 import ru.netology.nmedia.model.PhotoModel
@@ -33,9 +33,9 @@ class RegViewModel : ViewModel() {
         viewModelScope.launch {
             runCatching {
                 val response = when(_photo.value) {
-                    noPhoto -> PostsApi.retrofitService.registrationUser(login, pass, name)
+                    noPhoto -> Api.retrofitService.registrationUser(login, pass, name)
                     else -> _photo.value?.file?.let { file ->
-                        PostsApi.retrofitService.registrationWithPhoto(
+                        Api.retrofitService.registrationWithPhoto(
                             login.toRequestBody("text/plain".toMediaType()),
                             pass.toRequestBody("text/plain".toMediaType()),
                             name.toRequestBody("text/plain".toMediaType()),

@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.R
-import ru.netology.nmedia.api.PostsApi
+import ru.netology.nmedia.api.Api
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.auth.AuthState
 
@@ -23,7 +23,7 @@ class AuthViewModel : ViewModel() {
     fun authentication(login: String, pass: String) {
         viewModelScope.launch {
             runCatching {
-                val response = PostsApi.retrofitService.authenticationUser(login, pass)
+                val response = Api.retrofitService.authenticationUser(login, pass)
                 if (response.isSuccessful) {
                     response.body()?.let {
                         AppAuth.getInstance().setAuth(it.id, it.token)
