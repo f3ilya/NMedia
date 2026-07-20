@@ -8,9 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -24,11 +25,14 @@ import ru.netology.nmedia.fragment.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.fragment.PostFragment.Companion.idArg
 import ru.netology.nmedia.util.showConfirmationDialog
 import ru.netology.nmedia.viewmodule.PostViewModel
+import javax.inject.Inject
 import kotlin.coroutines.EmptyCoroutineContext
 
+@AndroidEntryPoint
 class FeedFragment : Fragment() {
-
-    private val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
+    @Inject
+    lateinit var auth: AppAuth
+    private val viewModel: PostViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -57,7 +61,7 @@ class FeedFragment : Fragment() {
             }
 
             override fun onLike(post: Post) {
-                if (AppAuth.getInstance().authStateFlow.value.token.isNullOrEmpty()) {
+                if (auth.authStateFlow.value.token.isNullOrEmpty()) {
                     authorizationIsRequired()
                 } else {
                     viewModel.likeById(post.id)
@@ -140,7 +144,7 @@ class FeedFragment : Fragment() {
         }
 
         binding.fab.setOnClickListener {
-            if (AppAuth.getInstance().authStateFlow.value.token.isNullOrEmpty()) {
+            if (auth.authStateFlow.value.token.isNullOrEmpty()) {
                 authorizationIsRequired()
             } else {
                 findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)

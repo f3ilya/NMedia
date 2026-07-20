@@ -5,28 +5,33 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.R
-import ru.netology.nmedia.api.Api
+import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.auth.AuthState
+import javax.inject.Inject
 
-class AuthViewModel : ViewModel() {
-    val data: LiveData<AuthState> = AppAuth.getInstance()
-        .authStateFlow
+@HiltViewModel
+class AuthViewModel @Inject constructor(
+    private val auth: AppAuth,
+    private val api: ApiService,
+) : ViewModel() {
+    val data: LiveData<AuthState> = auth.authStateFlow
         .asLiveData(Dispatchers.Default)
     val authenticated: Boolean
-        get() = AppAuth.getInstance().authStateFlow.value.id != 0L
+        get() = auth.authStateFlow.value.id != 0L
     val authenticationState = MutableLiveData<Result<Unit>?>()
 
     fun authentication(login: String, pass: String) {
         viewModelScope.launch {
             runCatching {
-                val response = Api.retrofitService.authenticationUser(login, pass)
+                val response = api.authenticationUser(login, pass)
                 if (response.isSuccessful) {
                     response.body()?.let {
-                        AppAuth.getInstance().setAuth(it.id, it.token)
+                        auth.setAuth(it.id, it.token)
                         failOrSuccess()
                     } ?: run {
                         failOrSuccess(R.string.empty_response_from_the_server.toString())

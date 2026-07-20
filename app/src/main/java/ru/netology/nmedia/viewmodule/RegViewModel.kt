@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaType
@@ -13,16 +14,21 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import ru.netology.nmedia.R
-import ru.netology.nmedia.api.Api
+import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.auth.AuthState
 import ru.netology.nmedia.model.PhotoModel
 import java.io.File
+import javax.inject.Inject
 
 private val noPhoto = PhotoModel()
-class RegViewModel : ViewModel() {
-    val data: LiveData<AuthState> = AppAuth.getInstance()
-        .authStateFlow
+
+@HiltViewModel
+class RegViewModel @Inject constructor(
+    private val auth: AppAuth,
+    private val api: ApiService,
+) : ViewModel() {
+    val data: LiveData<AuthState> = auth.authStateFlow
         .asLiveData(Dispatchers.Default)
     val registrationState = MutableLiveData<Result<Unit>?>()
     private val _photo = MutableLiveData(noPhoto)
@@ -33,9 +39,9 @@ class RegViewModel : ViewModel() {
         viewModelScope.launch {
             runCatching {
                 val response = when(_photo.value) {
-                    noPhoto -> Api.retrofitService.registrationUser(login, pass, name)
+                    noPhoto -> api.registrationUser(login, pass, name)
                     else -> _photo.value?.file?.let { file ->
-                        Api.retrofitService.registrationWithPhoto(
+                        api.registrationWithPhoto(
                             login.toRequestBody("text/plain".toMediaType()),
                             pass.toRequestBody("text/plain".toMediaType()),
                             name.toRequestBody("text/plain".toMediaType()),
@@ -47,7 +53,7 @@ class RegViewModel : ViewModel() {
                 }
                 if (response?.isSuccessful == true) {
                     response.body()?.let {
-                        AppAuth.getInstance().setAuth(it.id, it.token)
+                        auth.setAuth(it.id, it.token)
                         failOrSuccess()
                     } ?: run {
                         failOrSuccess(R.string.empty_response_from_the_server.toString())

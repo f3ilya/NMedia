@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.google.services)
+    alias(libs.plugins.dagger.hilt.android)
 }
 
 android {
@@ -72,4 +73,6 @@ dependencies {
     implementation(libs.logging.interceptor)
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.imagepicker)
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
 }

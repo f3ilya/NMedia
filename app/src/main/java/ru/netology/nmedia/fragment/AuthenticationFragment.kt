@@ -8,11 +8,12 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentAuthenticationBinding
 import ru.netology.nmedia.viewmodule.AuthViewModel
 
-
+@AndroidEntryPoint
 class AuthenticationFragment : Fragment() {
     private val viewModel: AuthViewModel by viewModels()
 
