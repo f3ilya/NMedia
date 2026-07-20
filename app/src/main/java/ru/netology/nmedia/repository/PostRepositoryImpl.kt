@@ -1,13 +1,14 @@
 package ru.netology.nmedia.repository
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okio.IOException
@@ -19,7 +20,6 @@ import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
-import ru.netology.nmedia.entity.toDto
 import ru.netology.nmedia.entity.toEntity
 import ru.netology.nmedia.enumeration.AttachmentType
 import ru.netology.nmedia.error.ApiError
@@ -28,6 +28,7 @@ import ru.netology.nmedia.error.NetworkError
 import ru.netology.nmedia.error.UnknownError
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Duration.Companion.milliseconds
 
 @Singleton
 class PostRepositoryImpl @Inject constructor(
@@ -35,9 +36,17 @@ class PostRepositoryImpl @Inject constructor(
     private val api: ApiService,
     private val auth: AppAuth,
 ) : PostRepository {
+    override val data: Flow<PagingData<Post>> = Pager(
+        config = PagingConfig(pageSize = 5, enablePlaceholders = false),
+        pagingSourceFactory = { PostPagingSource(api) },
+    ).flow
+
+    /** Было до 3.2: */
+    /*
     override val data = dao.getAll()
         .map(List<PostEntity>::toDto)
         .flowOn(Dispatchers.Default)
+     */
 
     override suspend fun getAll() {
         try {
@@ -56,7 +65,7 @@ class PostRepositoryImpl @Inject constructor(
 
     override fun getNewerCount(id: Long): Flow<Int> = flow {
         while (true) {
-            delay(10_000L)
+            delay(10_000L.milliseconds)
             val response = api.getNewer(id)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
@@ -80,9 +89,9 @@ class PostRepositoryImpl @Inject constructor(
     /*    override suspend fun likeById(id: Long, likedByMe: Boolean) {
             try {
                 val response = if (likedByMe) {
-                    PostsApi.retrofitService.dislikeById(id)
+                    api.dislikeById(id)
                 } else {
-                    PostsApi.retrofitService.likeById(id)
+                    api.likeById(id)
                 }
                 if (!response.isSuccessful) {
                     throw ApiError(response.code(), response.message())
@@ -153,10 +162,9 @@ class PostRepositoryImpl @Inject constructor(
 
     /** Сначала запрос на сервер, затем удаление: */
 
-    /*
         override suspend fun removeById(id: Long) {
             try {
-                val response = PostsApi.retrofitService.removeById(id)
+                val response = api.removeById(id)
                 if (!response.isSuccessful) {
                     throw ApiError(response.code(), response.message())
                 }
@@ -167,8 +175,9 @@ class PostRepositoryImpl @Inject constructor(
                 throw UnknownError
             }
         }
-    */
 
+    /** Сначала удаление, затем запрос на сервер: */
+    /*
     override suspend fun removeById(id: Long) {
         val postFlow = data.map { state ->
             state.find { it.id == id }
@@ -190,6 +199,7 @@ class PostRepositoryImpl @Inject constructor(
             if (!isSuccess) dao.insert(PostEntity.fromDto(post))
         }
     }
+     */
 
     override suspend fun readAll() {
         dao.readAll()
