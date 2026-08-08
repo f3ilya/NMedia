@@ -9,11 +9,15 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.snackbar.Snackbar
+import androidx.paging.LoadState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.OnInteractionListener
@@ -27,6 +31,7 @@ import ru.netology.nmedia.util.showConfirmationDialog
 import ru.netology.nmedia.viewmodule.PostViewModel
 import javax.inject.Inject
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.time.Duration.Companion.milliseconds
 
 @AndroidEntryPoint
 class FeedFragment : Fragment() {
@@ -64,7 +69,7 @@ class FeedFragment : Fragment() {
                 if (auth.authStateFlow.value.token.isNullOrEmpty()) {
                     authorizationIsRequired()
                 } else {
-                    viewModel.likeById(post.id)
+                    viewModel.likeById(post.id, post.likedByMe)
                 }
             }
 
@@ -108,6 +113,9 @@ class FeedFragment : Fragment() {
             }
         })
         binding.list.adapter = adapter
+
+        /** Было до 3.2: */
+        /*
         viewModel.dataState.observe(viewLifecycleOwner) { state ->
             binding.progress.isVisible = state.loading
             binding.swipeRefresh.isRefreshing = state.refreshing
@@ -117,31 +125,60 @@ class FeedFragment : Fragment() {
                     .show()
             }
         }
+         */
 
+        /** Было до 3.2: */
+        /*
         viewModel.data.observe(viewLifecycleOwner) { state ->
             adapter.submitList(state.posts)
             binding.emptyText.isVisible = state.empty
         }
+         */
 
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.data.collectLatest(adapter::submitData)
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                adapter.loadStateFlow.collectLatest { states ->
+                    binding.swipeRefresh.isRefreshing =
+                        states.refresh is LoadState.Loading ||
+                                states.prepend is LoadState.Loading ||
+                                states.append is LoadState.Loading
+                }
+            }
+        }
+
+        /** Было до 3.2: */
+        /*
         viewModel.newerCount.observe(viewLifecycleOwner) { state ->
             binding.newPosts.text = getString(R.string.recent_posts)
             binding.newPosts.isVisible = state > 0
         }
+         */
 
         binding.newPosts.setOnClickListener {
             binding.newPosts.isVisible = false
             viewModel.readAll()
             CoroutineScope(EmptyCoroutineContext).launch {
-                delay(100)
+                delay(100.milliseconds)
                 binding.list.post {
                     binding.list.smoothScrollToPosition(0)
                 }
             }
         }
 
+        /** Было до 3.2: */
+        /*
         binding.swipeRefresh.setOnRefreshListener {
             viewModel.loadPosts(refresh = true)
         }
+         */
+
+        binding.swipeRefresh.setOnRefreshListener(adapter::refresh)
 
         binding.fab.setOnClickListener {
             if (auth.authStateFlow.value.token.isNullOrEmpty()) {

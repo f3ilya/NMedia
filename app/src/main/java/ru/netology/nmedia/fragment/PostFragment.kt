@@ -8,8 +8,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.paging.filter
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostsAdapter
@@ -48,7 +54,7 @@ class PostFragment : Fragment() {
             }
 
             override fun onLike(post: Post) {
-                viewModel.likeById(post.id)
+                viewModel.likeById(post.id, post.likedByMe)
             }
 
             override fun onRemove(post: Post) {
@@ -86,9 +92,19 @@ class PostFragment : Fragment() {
         })
         binding.list.adapter = adapter
         val postId = arguments?.idArg ?: -1
+        /** Было до 3.2: */
+        /*
         viewModel.data.observe(viewLifecycleOwner) { state ->
             val post = state.posts.find { it.id == postId } ?: return@observe
             adapter.submitList(listOf(post))
+        }
+         */
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.data.collectLatest {
+                    adapter.submitData(it.filter { post -> post.id == postId })
+                }
+            }
         }
         return binding.root
     }
