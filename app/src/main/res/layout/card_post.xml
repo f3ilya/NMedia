@@ -80,13 +80,15 @@
 
     <ImageView
         android:id="@+id/video"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="240dp"
         android:clickable="true"
         android:contentDescription="@string/description_play_video"
         android:focusable="true"
+        android:padding="@dimen/common_spacing"
         android:src="@drawable/image"
-        app:layout_constraintBottom_toBottomOf="@id/barrierBottom"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/content" />
 
     <ImageButton
@@ -114,7 +116,7 @@
 
     <ImageView
         android:id="@+id/attachment"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:adjustViewBounds="true"
         android:clickable="true"
@@ -123,7 +125,6 @@
         android:maxHeight="240dp"
         android:padding="@dimen/common_spacing"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/barrierBottom"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/content"
@@ -134,7 +135,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
-        app:constraint_referenced_ids="content" />
+        app:constraint_referenced_ids="content, video, attachment" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/like"
