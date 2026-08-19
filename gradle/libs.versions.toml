@@ -26,6 +26,7 @@ dagger = "2.57.2"
 pagingRuntimeKtx = "3.3.6"
 
 [libraries]
+androidx-room-paging = { module = "androidx.room:room-paging", version.ref = "room" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
