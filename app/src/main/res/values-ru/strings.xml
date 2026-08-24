@@ -62,4 +62,5 @@
     <string name="incorrect_login_or_password">Неправильный логин или пароль</string>
     <string name="choose_a_profile_picture">Выберите фотографию профиля</string>
     <string name="all_fields_are_required">Все поля обязательны для заполнения</string>
+    <string name="ad_description">Реклама</string>
 </resources>

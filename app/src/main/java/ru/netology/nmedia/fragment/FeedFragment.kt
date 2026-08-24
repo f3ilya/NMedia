@@ -21,7 +21,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.OnInteractionListener
-import ru.netology.nmedia.adapter.PostsAdapter
+import ru.netology.nmedia.adapter.FeedAdapter
+import ru.netology.nmedia.adapter.PagingLoadStateAdapter
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
@@ -57,7 +58,7 @@ class FeedFragment : Fragment() {
             )
         }
 
-        val adapter = PostsAdapter(object : OnInteractionListener {
+        val adapter = FeedAdapter(object : OnInteractionListener {
             override fun onEdit(post: Post) {
                 viewModel.edit(post)
                 findNavController().navigate(
@@ -112,7 +113,33 @@ class FeedFragment : Fragment() {
                 )
             }
         })
-        binding.list.adapter = adapter
+        binding.list.adapter = adapter.withLoadStateHeaderAndFooter(
+            header = PagingLoadStateAdapter { adapter.retry() },
+            footer = PagingLoadStateAdapter { adapter.retry() },
+        )
+
+        //TODO("Добавить свайпы для удаления постов и редактирования")
+        /** Код как это можнол реализовать:  */
+        /*
+            ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
+            0, ItemTouchHelper.START or ItemTouchHelper.END
+        ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                TODO("Not yet implemented")
+            }
+
+            override fun onSwiped(
+                viewHolder: RecyclerView.ViewHolder,
+                direction: Int
+            ) {
+                println("DO SOMETHING")
+            }
+        }).attachToRecyclerView(binding.list)
+        */
 
         /** Было до 3.2: */
         /*
@@ -145,9 +172,7 @@ class FeedFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 adapter.loadStateFlow.collectLatest { states ->
                     binding.swipeRefresh.isRefreshing =
-                        states.refresh is LoadState.Loading ||
-                                states.prepend is LoadState.Loading ||
-                                states.append is LoadState.Loading
+                        states.refresh is LoadState.Loading
                 }
             }
         }
