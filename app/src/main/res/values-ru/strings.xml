@@ -63,4 +63,6 @@
     <string name="choose_a_profile_picture">Выберите фотографию профиля</string>
     <string name="all_fields_are_required">Все поля обязательны для заполнения</string>
     <string name="ad_description">Реклама</string>
+    <string name="do_you_really_want_to_delete_the_post">Вы действительно хотите удалить пост?</string>
+    <string name="this_action_cannot_be_undone">Это действие невозможно будет отменить.</string>
 </resources>

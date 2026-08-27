@@ -92,13 +92,6 @@ class PostFragment : Fragment() {
         })
         binding.list.adapter = adapter
         val postId = arguments?.idArg ?: -1
-        /** Было до 3.2: */
-        /*
-        viewModel.data.observe(viewLifecycleOwner) { state ->
-            val post = state.posts.find { it.id == postId } ?: return@observe
-            adapter.submitList(listOf(post))
-        }
-         */
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.data.collectLatest {

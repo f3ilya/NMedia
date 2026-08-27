@@ -26,6 +26,9 @@ fun Context.showConfirmationDialog(
             onConfirm()
             dialog.dismiss()
         }
+        .setOnCancelListener {
+            onCancel?.invoke()
+        }
         .apply { if (isNeed) this.setNeutralButton(neutral) { dialog, _ ->
             onNeutral?.invoke()
             dialog.dismiss()

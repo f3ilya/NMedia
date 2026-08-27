@@ -52,13 +52,6 @@ class PostRepositoryImpl @Inject constructor(
         pagingData.map(PostEntity::toDto)
     }
 
-    /** Было до 3.2: */
-    /*
-    override val data = dao.getAll()
-        .map(List<PostEntity>::toDto)
-        .flowOn(Dispatchers.Default)
-     */
-
     override suspend fun getAll() {
         try {
             val response = api.getAll()

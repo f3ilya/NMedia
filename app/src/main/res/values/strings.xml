@@ -62,4 +62,6 @@
     <string name="choose_a_profile_picture">Choose a profile picture</string>
     <string name="all_fields_are_required">All fields are required.</string>
     <string name="ad_description">Ad</string>
+    <string name="do_you_really_want_to_delete_the_post">Do you really want to delete the post?</string>
+    <string name="this_action_cannot_be_undone">This action cannot be undone.</string>
 </resources>

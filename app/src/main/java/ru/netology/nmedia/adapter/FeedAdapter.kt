@@ -8,7 +8,6 @@ import androidx.core.view.isVisible
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewbinding.ViewBinding
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardAdBinding
@@ -45,7 +44,6 @@ class FeedAdapter(
         return when (getItem(position)) {
             is Ad -> typeAd
             is Post -> typePost
-//            null -> error("unknown item type")
             null -> typePost
         }
     }
@@ -68,16 +66,19 @@ class FeedAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val item = getItem(position) ?: return
+        val item = getItem(position)
+        if (item == null) {
+            (holder as? PostViewHolder)?.clear()
+            return
+        }
         when (item) {
             is Ad -> (holder as? AdViewHolder)?.bind(item)
             is Post -> (holder as? PostViewHolder)?.bind(item)
         }
-        /** Было до 3.2: */
-        /*
-        val post = getItem(position)
-        holder.bind(post)
-         */
+    }
+
+    fun getItemAt(position: Int): FeedItem? {
+        return peek(position)
     }
 }
 
@@ -85,7 +86,12 @@ class PostViewHolder(
     private val binding: CardPostBinding,
     private val onInteractionListener: OnInteractionListener
 ) : RecyclerView.ViewHolder(binding.root) {
+
+    fun clear() {
+        binding.postContentContainer.visibility = View.INVISIBLE
+    }
     fun bind(post: Post) {
+        binding.postContentContainer.visibility = View.VISIBLE
         binding.apply {
             binding.avatar.load("${BuildConfig.BASE_URL}/avatars/${post.authorAvatar}", true)
             author.text = post.author
