@@ -77,4 +77,5 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.paging.runtime.ktx)
     implementation(libs.androidx.room.paging)
+    implementation(libs.recyclerview.swipedecorator)
 }

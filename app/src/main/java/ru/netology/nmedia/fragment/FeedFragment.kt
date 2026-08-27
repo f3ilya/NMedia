@@ -1,6 +1,7 @@
 package ru.netology.nmedia.fragment
 
 import android.content.Intent
+import android.graphics.Canvas
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -14,6 +15,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -33,6 +36,10 @@ import ru.netology.nmedia.viewmodule.PostViewModel
 import javax.inject.Inject
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration.Companion.milliseconds
+import android.graphics.Color
+import android.util.TypedValue
+import androidx.core.content.ContextCompat
+import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
 
 @AndroidEntryPoint
 class FeedFragment : Fragment() {
@@ -118,49 +125,108 @@ class FeedFragment : Fragment() {
             footer = PagingLoadStateAdapter { adapter.retry() },
         )
 
-        //TODO("Добавить свайпы для удаления постов и редактирования")
-        /** Код как это можнол реализовать:  */
-        /*
-            ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
+        val itemTouchHelper: ItemTouchHelper? = null
+        ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
             0, ItemTouchHelper.START or ItemTouchHelper.END
         ) {
             override fun onMove(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
                 target: RecyclerView.ViewHolder
-            ): Boolean {
-                TODO("Not yet implemented")
-            }
+            ): Boolean = false
 
             override fun onSwiped(
                 viewHolder: RecyclerView.ViewHolder,
                 direction: Int
             ) {
-                println("DO SOMETHING")
+                val position = viewHolder.bindingAdapterPosition
+                val feedItem = adapter.getItemAt(position)
+                val post = feedItem as? Post
+
+                if (post == null || !post.ownedByMe) {
+                    adapter.notifyItemChanged(position)
+                    return
+                }
+
+                when (direction) {
+                    ItemTouchHelper.START -> {
+                        requireContext().showConfirmationDialog(
+                            title = getString(R.string.do_you_really_want_to_delete_the_post),
+                            message = getString(R.string.this_action_cannot_be_undone),
+                            positive = getString(R.string.ok),
+                            onConfirm = {
+                                viewModel.removeById(post.id)
+                            },
+                            onCancel = {
+                                itemTouchHelper?.attachToRecyclerView(null)
+                                adapter.notifyItemChanged(position)
+                                itemTouchHelper?.attachToRecyclerView(binding.list)
+                            }
+                        )
+                    }
+
+                    ItemTouchHelper.END -> {
+                        viewModel.edit(post)
+                        findNavController().navigate(
+                            R.id.action_feedFragment_to_newPostFragment,
+                            Bundle().apply { textArg = post.content }
+                        )
+                        itemTouchHelper?.attachToRecyclerView(null)
+                        adapter.notifyItemChanged(position)
+                        itemTouchHelper?.attachToRecyclerView(binding.list)
+                    }
+                }
+            }
+
+            override fun onChildDraw(
+                c: Canvas,
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean
+            ) {
+                RecyclerViewSwipeDecorator.Builder(
+                    c,
+                    recyclerView,
+                    viewHolder,
+                    dX,
+                    dY,
+                    actionState,
+                    isCurrentlyActive
+                )
+                    .addSwipeRightBackgroundColor(
+                        ContextCompat.getColor(
+                            requireContext(),
+                            R.color.green
+                        )
+                    )
+                    .addSwipeRightActionIcon(R.drawable.ic_editing_48)
+                    .addSwipeRightLabel(getString(R.string.menu_edit))
+                    .setSwipeRightLabelColor(Color.WHITE)
+                    .setSwipeRightLabelTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
+
+                    .addSwipeLeftBackgroundColor(Color.RED)
+                    .addSwipeLeftActionIcon(R.drawable.ic_delete_48dp)
+                    .addSwipeLeftLabel(getString(R.string.menu_remove))
+                    .setSwipeLeftLabelColor(Color.WHITE)
+                    .setSwipeLeftLabelTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
+                    .create()
+                    .decorate()
+                super.onChildDraw(
+                    c,
+                    recyclerView,
+                    viewHolder,
+                    dX,
+                    dY,
+                    actionState,
+                    isCurrentlyActive
+                )
             }
         }).attachToRecyclerView(binding.list)
-        */
 
-        /** Было до 3.2: */
-        /*
-        viewModel.dataState.observe(viewLifecycleOwner) { state ->
-            binding.progress.isVisible = state.loading
-            binding.swipeRefresh.isRefreshing = state.refreshing
-            if (state.error) {
-                Snackbar.make(binding.root, R.string.error_loading, Snackbar.LENGTH_LONG)
-                    .setAction(R.string.retry_loading) { viewModel.loadPosts() }
-                    .show()
-            }
-        }
-         */
-
-        /** Было до 3.2: */
-        /*
-        viewModel.data.observe(viewLifecycleOwner) { state ->
-            adapter.submitList(state.posts)
-            binding.emptyText.isVisible = state.empty
-        }
-         */
+        itemTouchHelper?.attachToRecyclerView(binding.list)
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -177,14 +243,6 @@ class FeedFragment : Fragment() {
             }
         }
 
-        /** Было до 3.2: */
-        /*
-        viewModel.newerCount.observe(viewLifecycleOwner) { state ->
-            binding.newPosts.text = getString(R.string.recent_posts)
-            binding.newPosts.isVisible = state > 0
-        }
-         */
-
         binding.newPosts.setOnClickListener {
             binding.newPosts.isVisible = false
             viewModel.readAll()
@@ -195,13 +253,6 @@ class FeedFragment : Fragment() {
                 }
             }
         }
-
-        /** Было до 3.2: */
-        /*
-        binding.swipeRefresh.setOnRefreshListener {
-            viewModel.loadPosts(refresh = true)
-        }
-         */
 
         binding.swipeRefresh.setOnRefreshListener(adapter::refresh)
 

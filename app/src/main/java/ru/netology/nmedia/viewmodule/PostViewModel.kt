@@ -75,46 +75,10 @@ class PostViewModel @Inject constructor(
         }
         .cachedIn(viewModelScope)
 
-    /** Код из лекции: */
-    /*
-    private val cached = repository.data.cachedIn(viewModelScope)
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val data: Flow<PagingData<Post>> = auth.authStateFlow
-        .flatMapLatest { (myId, _) ->
-            cached.map { pagingData ->
-                pagingData.map { post ->
-                    post.copy(ownedByMe = post.authorId == myId)
-                }
-            }
-        }
-     */
-
-    /** Было до 3.2: */
-    /*
-        @OptIn(ExperimentalCoroutinesApi::class)
-    val data: LiveData<FeedModel> = auth.authStateFlow
-        .flatMapLatest { (myId, _) ->
-            repository.data
-                .map { posts ->
-                    FeedModel(
-                        posts.map { it.copy(ownedByMe = it.authorId == myId) },
-                        posts.isEmpty()
-                    )
-                }
-        }.asLiveData(Dispatchers.Default)
-     */
     private val _dataState = MutableLiveData<FeedModelState>()
     val dataState: LiveData<FeedModelState>
         get() = _dataState
 
-    /** Было до 3.2: */
-    /*
-    val newerCount: LiveData<Int> = data.switchMap {
-        repository.getNewerCount(it.posts.firstOrNull()?.id ?: 0L)
-            .catch { e -> e.printStackTrace() }
-            .asLiveData(Dispatchers.Default)
-    }
-     */
     val edited = MutableLiveData(empty)
     private val _postCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit>
@@ -132,8 +96,6 @@ class PostViewModel @Inject constructor(
         runCatching {
             _dataState.value =
                 if (refresh) FeedModelState(refreshing = true) else FeedModelState(loading = true)
-            /** Было до 3.2: */
-//            repository.getAll()
             _dataState.value = FeedModelState()
         }.onFailure {
             _dataState.value = FeedModelState(error = true)
@@ -191,23 +153,6 @@ class PostViewModel @Inject constructor(
             }
         }
     }
-
-    /*
-    fun likeById(id: Long) {
-        val currentState = data.value ?: return
-        val currentStatePosts = currentState.posts
-        val post = currentStatePosts.find { it.id == id } ?: return
-        val likedByMe = post.likedByMe
-        viewModelScope.launch {
-            runCatching {
-                repository.likeById(id, likedByMe)
-                _dataState.value = FeedModelState()
-            }.onFailure {
-                _dataState.value = FeedModelState(error = true)
-            }
-        }
-    }
-     */
 
     fun shareById(id: Long) {
         viewModelScope.launch {

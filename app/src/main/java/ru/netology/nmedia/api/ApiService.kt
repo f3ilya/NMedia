@@ -23,7 +23,7 @@ import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.dto.PushToken
 import ru.netology.nmedia.dto.Token
 
-private const val BASE_URL = "${BuildConfig.BASE_URL}/api/slow/"
+private const val BASE_URL = "${BuildConfig.BASE_URL}/api/"
 
 fun okhttp(vararg interceptor: Interceptor): OkHttpClient = OkHttpClient.Builder()
     .apply {
